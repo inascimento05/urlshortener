@@ -26,6 +26,10 @@ A aplicação é um encurtador de URLs que permite aos usuários registrados cri
 - **Registro de Cliques:** A aplicação mantém um registro do número de vezes que cada URL curta foi acessada, permitindo o monitoramento de popularidade.
 - **Documentação da API:** A aplicação inclui uma documentação da API usando Swagger para facilitar o entendimento e uso das rotas disponíveis.
 
+## Repositório Github: https://github.com/inascimento05/urlshortener
+
+## Swagger: https://urlshortener-ukeo.onrender.com/api-docs/
+
 ## Rodando localmente
 
 Para iniciar o servidor de desenvolvimento, utilize o comando:
@@ -40,6 +44,12 @@ npm install
 
 ```bash
 npm run dev
+```
+
+#### Rodar os testes
+
+```bash
+npm run test
 ```
 
 ## Documentação da API
