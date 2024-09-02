@@ -1,0 +1,35 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model Url {
+  base           String
+  clicks         Int       @default(0)
+  id             String    @unique @default(uuid())
+  inactive       DateTime?
+  user           User?     @relation(fields: [userId], references: [id])
+  shortened      String    @default("https://www.example.com")
+  userId         String?
+  updatedat      DateTime  @default(now()) @updatedAt @db.Timestamptz(6)
+  xata_createdat DateTime  @default(now()) @db.Timestamptz(6)
+  xata_updatedat DateTime  @default(now()) @db.Timestamptz(6)
+  xata_id        String    @unique(map: "Url__pgroll_new_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int       @default(0)
+}
+
+model User {
+  id             String   @id @default(uuid())
+  password       String
+  urls           Url[]
+  username       String   @unique
+  xata_id        String   @unique(map: "User__pgroll_new_xata_id_key") @default(dbgenerated("('rec_'::text || (xata_private.xid())::text)"))
+  xata_version   Int      @default(0)
+  xata_createdat DateTime @default(now()) @db.Timestamptz(6)
+  xata_updatedat DateTime @default(now()) @db.Timestamptz(6)
+}

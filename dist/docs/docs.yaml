@@ -1,0 +1,310 @@
+openapi: 3.0.0
+info:
+  title: API Documentation
+  description: API documentation for your application
+  version: 1.0.0
+servers:
+  - url: http://localhost:4000
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+paths:
+  /anchor/{id}:
+    get:
+      summary: Redirect to the original URL
+      description: Finds the shortened URL by its ID, increments its click count, and redirects to the original URL.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the shortened URL
+          example: 123456
+      responses:
+        302:
+          description: Redirect to the original URL
+          headers:
+            Location:
+              description: The URL to which the client is redirected
+              schema:
+                type: string
+        404:
+          description: Not Found - URL does not exist
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "URL not found"
+      tags:
+        - Anchor
+  /shortener:
+    post:
+      summary: Create a shortened URL
+      description: Creates a new shortened URL. If the user is authenticated, the URL is associated with the user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                base:
+                  type: string
+                  example: https://www.example.com
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: Shortened URL is created
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "www.whale.com/anchor/123456"
+      tags:
+        - URL Shortener
+  /url:
+    get:
+      summary: Get all active URLs for an authenticated user
+      description: Returns a list of all URLs associated with the authenticated user that are not marked as inactive.
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: A list of URLs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      example: 123456
+                    base:
+                      type: string
+                      example: "https://example.com"
+                    clicks:
+                      type: integer
+                      example: 10
+                    userId:
+                      type: string
+                      example: 123456
+                    inactive:
+                      type: string
+                      format: date-time
+                      nullable: true
+                      example: null
+        401:
+          description: Unauthorized user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized user"
+      tags:
+        - URL
+  /url/{id}:
+    delete:
+      summary: Mark a URL as inactive
+      description: Marks the specified URL as inactive for the authenticated user.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the URL to be marked as inactive.
+          example: 123456
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: URL has been marked as inactive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 123456
+                  base:
+                    type: string
+                    example: "https://example.com"
+                  inactive:
+                    type: string
+                    format: date-time
+                    example: "2024-09-01T12:34:56.789Z"
+                  userId:
+                    type: string
+                    example: 123456
+        401:
+          description: Unauthorized user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized user"
+        404:
+          description: URL not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "URL not found"
+      tags:
+        - URL
+    patch:
+      summary: Update a URL for an authenticated user
+      description: Updates the base URL for a specific URL record for the authenticated user.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the URL to be updated.
+          example: 123456
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                base:
+                  type: string
+                  example: "https://new-example.com"
+      security:
+        - bearerAuth: []
+      responses:
+        200:
+          description: URL has been updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: 123456
+                  base:
+                    type: string
+                    example: "https://new-example.com"
+                  userId:
+                    type: string
+                    example: 123456
+        401:
+          description: Unauthorized user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Unauthorized user"
+        404:
+          description: URL not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "URL not found"
+      tags:
+        - URL
+  /user/signin:
+    post:
+      summary: Sign in a user
+      description: Authenticates a user and returns a JWT token if successful.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: username
+                password:
+                  type: string
+                  example: password
+      responses:
+        200:
+          description: JWT token is returned
+          content:
+            application/json:
+              schema:
+                type: string
+                example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjNmZGY3MmQ5LTVmYmYtNDhkMC1iZDAzLTQ2ODIzNmMzMmUxNCIsImlhdCI6MTcyNTIxMTE3NCwiZXhwIjoxNzI1Mjk3NTc0fQ"
+        401:
+          description: Unauthorized - User not found or wrong password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User not found"
+      tags:
+        - User
+  /user/signup:
+    post:
+      summary: Sign up a new user
+      description: Registers a new user in the system. Returns a success message if registration is successful.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: username
+                password:
+                  type: string
+                  example: password
+      responses:
+        201:
+          description: User has been registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User has been registered"
+        400:
+          description: Bad Request - User already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User already exists"
+      tags:
+        - User
