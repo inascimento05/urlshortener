@@ -8,16 +8,15 @@ const create = async (req, res) => {
     // @ts-ignore
     const user = req.user;
     const id = (0, uuid_1.v4)().slice(0, 6);
-    const port = process.env.PORT || 3000;
     const response = await prisma_1.prismaClient.url.create({
         data: {
             base: base,
             id: id,
-            shortened: `http://localhost:${port}/anchor/${id}`,
+            shortened: `${process.env.BASE_URL_K}/anchor/${id}`,
             userId: user?.id,
         },
     });
-    return res.json(response.shortened);
+    return res.json(response);
 };
 exports.shortener = {
     create: create,

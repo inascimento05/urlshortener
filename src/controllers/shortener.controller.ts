@@ -16,7 +16,7 @@ const create = async (
     data: {
       base: base,
       id: id,
-      shortened: `${process.env.BASE_URL}/anchor/${id}`,
+      shortened: `${process.env.BASE_URL_K}/anchor/${id}`,
       userId: user?.id,
     },
   });
